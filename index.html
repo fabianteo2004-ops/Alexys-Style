@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Alexys Style — Luxury Hair Salon · Coslada, Madrid</title>
+  <meta name="description" content="Peluquería de lujo en Coslada, Madrid. Especialistas en rubios, mechas, balayage, extensiones y tratamientos capilares. Reserva cita con Cristina." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --black:      #080609;
+      --dark:       #100e17;
+      --card:       #17141f;
+      --gold:       #c9a96e;
+      --gold-light: #e2c998;
+      --gold-dark:  #9d7c44;
+      --white:      #f5f0e8;
+      --gray:       rgba(245,240,232,0.55);
+      --serif:      'Playfair Display', Georgia, serif;
+      --sans:       'Raleway', system-ui, sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: var(--sans);
+      font-weight: 400;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ─── HEADER ─── */
+    #header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 200;
+      padding: 1.1rem 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background .4s, box-shadow .4s;
+    }
+    #header.scrolled {
+      background: rgba(8,6,9,.9);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 1px 0 rgba(201,169,110,.12);
+    }
+
+    .logo { text-decoration: none; }
+    .logo-name {
+      font-family: var(--serif);
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: .04em;
+      display: block;
+      line-height: 1;
+    }
+    .logo-sub {
+      font-size: .58rem;
+      letter-spacing: .32em;
+      text-transform: uppercase;
+      color: rgba(245,240,232,.4);
+      display: block;
+      margin-top: .15rem;
+    }
+
+    nav { display: flex; gap: 2rem; align-items: center; }
+    nav a {
+      font-size: .72rem;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: rgba(245,240,232,.65);
+      text-decoration: none;
+      transition: color .2s;
+    }
+    nav a:hover { color: var(--gold); }
+    .nav-cta {
+      border: 1px solid var(--gold) !important;
+      color: var(--gold) !important;
+      padding: .45rem 1.2rem !important;
+      border-radius: 1px;
+      transition: background .2s, color .2s !important;
+    }
+    .nav-cta:hover { background: var(--gold) !important; color: var(--black) !important; }
+
+    /* ─── HAMBURGER ─── */
+    .ham {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: .4rem;
+      background: none;
+      border: none;
+    }
+    .ham span {
+      display: block; width: 24px; height: 1px;
+      background: var(--white);
+    }
+
+    /* ─── MOBILE MENU ─── */
+    #mobileMenu {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(8,6,9,.97);
+      z-index: 300;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2.5rem;
+    }
+    #mobileMenu.open { display: flex; }
+    #mobileMenu a {
+      font-family: var(--serif);
+      font-size: 2.2rem;
+      color: var(--white);
+      text-decoration: none;
+      transition: color .2s;
+    }
+    #mobileMenu a:hover { color: var(--gold); }
+    .m-close {
+      position: absolute; top: 1.5rem; right: 2rem;
+      font-size: 1.6rem; color: var(--white);
+      background: none; border: none; cursor: pointer;
+    }
+
+    /* ─── HERO ─── */
+    .hero {
+      position: relative;
+      height: 100vh; min-height: 640px;
+      display: flex; align-items: center; justify-content: center;
+      text-align: center;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background:
+        linear-gradient(to bottom, rgba(8,6,9,.2) 0%, rgba(8,6,9,.55) 55%, var(--black) 100%),
+        url('https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1600&q=80') center/cover no-repeat;
+      transform: scale(1.06);
+      will-change: transform;
+    }
+    .hero-content {
+      position: relative; z-index: 2;
+      max-width: 720px; padding: 2rem;
+    }
+    .hero-badge {
+      display: inline-block;
+      font-size: .68rem; letter-spacing: .38em; text-transform: uppercase;
+      color: var(--gold);
+      border-top: 1px solid var(--gold); border-bottom: 1px solid var(--gold);
+      padding: .38rem 1.3rem; margin-bottom: 2rem;
+      opacity: 0;
+    }
+    .hero h1 {
+      font-family: var(--serif);
+      font-size: clamp(3.8rem, 9vw, 7.5rem);
+      font-weight: 700; line-height: .95;
+      letter-spacing: .02em; color: var(--white);
+      margin-bottom: .5rem;
+      opacity: 0;
+    }
+    .hero h1 em {
+      display: block;
+      font-style: italic; color: var(--gold);
+      font-size: .52em; font-weight: 400; letter-spacing: .14em;
+      margin-top: .4rem;
+    }
+    .hero-sub {
+      font-size: 1rem; font-weight: 300; letter-spacing: .06em;
+      color: rgba(245,240,232,.75);
+      margin-bottom: 2.8rem;
+      opacity: 0;
+    }
+    .hero-btn {
+      display: inline-block;
+      background: var(--gold); color: var(--black);
+      font-size: .75rem; font-weight: 600;
+      letter-spacing: .22em; text-transform: uppercase;
+      text-decoration: none; padding: 1.05rem 2.8rem;
+      opacity: 0;
+      transition: background .3s, transform .25s;
+    }
+    .hero-btn:hover { background: var(--gold-light); transform: translateY(-2px); }
+
+    .hero-scroll-hint {
+      position: absolute; bottom: 2.2rem; left: 50%;
+      transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: .45rem;
+      opacity: 0;
+    }
+    .hero-scroll-hint span {
+      font-size: .62rem; letter-spacing: .26em; text-transform: uppercase; color: var(--gold);
+    }
+    .s-line {
+      width: 1px; height: 42px;
+      background: linear-gradient(to bottom, var(--gold), transparent);
+      animation: sline 1.6s ease-in-out infinite;
+    }
+    @keyframes sline {
+      0%   { transform: scaleY(0); transform-origin: top; }
+      49%  { transform: scaleY(1); transform-origin: top; }
+      51%  { transform: scaleY(1); transform-origin: bottom; }
+      100% { transform: scaleY(0); transform-origin: bottom; }
+    }
+
+    /* ─── SECTION BASE ─── */
+    .sec {
+      padding: 7rem 2.5rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .sec-full {
+      padding: 7rem 2.5rem;
+      background: var(--dark);
+    }
+    .sec-inner { max-width: 1200px; margin: 0 auto; }
+
+    .tag {
+      display: block;
+      font-size: .65rem; letter-spacing: .38em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: .7rem;
+    }
+    .title {
+      font-family: var(--serif);
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 600; line-height: 1.15;
+      color: var(--white); margin-bottom: 1.4rem;
+    }
+    .title em { font-style: italic; color: var(--gold); }
+    .g-line { width: 60px; height: 1px; background: var(--gold); margin-bottom: 2.8rem; }
+
+    /* ─── FADE UP ─── */
+    .fu {
+      opacity: 0; transform: translateY(36px);
+      transition: opacity .75s ease, transform .75s ease;
+    }
+    .fu.in { opacity: 1; transform: translateY(0); }
+
+    /* ─── ABOUT ─── */
+    .about-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 5rem; align-items: center;
+    }
+    .about-img-wrap { position: relative; }
+    .about-img {
+      width: 100%; aspect-ratio: 3/4;
+      background: var(--card);
+      border: 1px solid rgba(201,169,110,.18);
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; position: relative;
+    }
+    .ph {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: .6rem; color: rgba(201,169,110,.35);
+      font-size: .7rem; letter-spacing: .2em; text-transform: uppercase;
+      text-align: center; padding: 1rem; height: 100%; width: 100%;
+    }
+    .ph svg { width: 2.8rem; height: 2.8rem; }
+    .badge {
+      position: absolute; bottom: -1.6rem; right: -1.6rem;
+      background: var(--gold); color: var(--black);
+      width: 96px; height: 96px; border-radius: 50%;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      font-family: var(--serif); font-weight: 700; text-align: center;
+    }
+    .badge big { font-size: 2rem; line-height: 1; }
+    .badge small { font-size: .58rem; letter-spacing: .05em; line-height: 1.3; }
+    .about-text p { color: var(--gray); font-size: .92rem; margin-bottom: 1.1rem; }
+    .about-text strong { color: var(--gold); font-weight: 600; }
+    .stats {
+      display: flex; gap: 2rem;
+      margin-top: 2.5rem; padding-top: 2rem;
+      border-top: 1px solid rgba(201,169,110,.14);
+    }
+    .stat { flex: 1; text-align: center; }
+    .stat-n {
+      font-family: var(--serif); font-size: 2.6rem; color: var(--gold); font-weight: 700;
+      line-height: 1;
+    }
+    .stat-l {
+      font-size: .65rem; letter-spacing: .18em; text-transform: uppercase;
+      color: rgba(245,240,232,.3); margin-top: .3rem;
+    }
+
+    /* ─── SERVICES ─── */
+    .svc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1px;
+      background: rgba(201,169,110,.08);
+      border: 1px solid rgba(201,169,110,.08);
+    }
+    .svc-cat {
+      background: var(--dark);
+      padding: 2.2rem;
+      transition: background .3s;
+    }
+    .svc-cat:hover { background: #1c192a; }
+    .svc-cat-h {
+      font-family: var(--serif); font-size: 1.05rem; color: var(--gold);
+      margin-bottom: 1.4rem; padding-bottom: .8rem;
+      border-bottom: 1px solid rgba(201,169,110,.18);
+      display: flex; align-items: center; gap: .7rem;
+    }
+    .svc-row {
+      display: flex; justify-content: space-between; align-items: baseline;
+      padding: .6rem 0; border-bottom: 1px solid rgba(255,255,255,.05);
+      gap: .8rem;
+    }
+    .svc-row:last-child { border-bottom: none; }
+    .svc-n { font-size: .83rem; color: rgba(245,240,232,.78); }
+    .svc-p { font-size: .88rem; font-weight: 600; color: var(--gold); white-space: nowrap; }
+    .svc-p small {
+      display: block; font-size: .68rem; color: rgba(245,240,232,.35);
+      font-weight: 400; margin-top: .2rem;
+    }
+    .svc-note {
+      margin-top: 1.1rem; font-size: .72rem;
+      color: rgba(245,240,232,.3); letter-spacing: .04em;
+    }
+
+    /* ─── GALLERY ─── */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: 260px 260px;
+      gap: .5rem;
+    }
+    .g-item {
+      background: var(--card);
+      border: 1px solid rgba(201,169,110,.08);
+      overflow: hidden; position: relative; cursor: pointer;
+    }
+    .g-item:first-child { grid-row: span 2; }
+    .g-item img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s ease; }
+    .g-item:hover img { transform: scale(1.06); }
+    .g-ph {
+      width: 100%; height: 100%; min-height: 140px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: .5rem; color: rgba(201,169,110,.28);
+      font-size: .68rem; letter-spacing: .2em; text-transform: uppercase;
+    }
+    .g-ph svg { width: 1.8rem; height: 1.8rem; }
+    .gallery-hint {
+      margin-top: 1.2rem; font-size: .8rem;
+      color: rgba(245,240,232,.3); letter-spacing: .04em;
+    }
+    .gallery-hint code { color: var(--gold); background: rgba(201,169,110,.1); padding: .15rem .4rem; }
+
+    /* ─── TESTIMONIALS ─── */
+    .testi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.2rem;
+    }
+    .testi-card {
+      background: var(--card);
+      border: 1px solid rgba(201,169,110,.1);
+      padding: 2rem; position: relative;
+      transition: border-color .3s, transform .3s;
+    }
+    .testi-card:hover { border-color: rgba(201,169,110,.4); transform: translateY(-4px); }
+    .testi-card::before {
+      content: '\201C';
+      position: absolute; top: .8rem; right: 1.2rem;
+      font-family: var(--serif); font-size: 5.5rem; line-height: 1;
+      color: rgba(201,169,110,.06); pointer-events: none;
+    }
+    .stars { color: var(--gold); font-size: .78rem; letter-spacing: .08em; margin-bottom: .9rem; }
+    .testi-text {
+      font-size: .88rem; line-height: 1.72;
+      color: rgba(245,240,232,.72); font-style: italic; margin-bottom: 1.4rem;
+    }
+    .testi-author { display: flex; align-items: center; gap: .8rem; }
+    .avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--gold); color: var(--black);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--serif); font-weight: 700; font-size: 1rem;
+      flex-shrink: 0;
+    }
+    .author-name { font-size: .83rem; font-weight: 600; color: var(--white); }
+    .author-src { font-size: .68rem; color: rgba(245,240,232,.35); }
+
+    /* ─── HOURS + CONTACT ─── */
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+    .info-card {
+      background: var(--card);
+      border: 1px solid rgba(201,169,110,.12);
+      padding: 2.5rem;
+    }
+    .info-card-h {
+      font-family: var(--serif); font-size: 1.2rem; color: var(--gold);
+      margin-bottom: 1.8rem; display: flex; align-items: center; gap: .7rem;
+    }
+    .h-row {
+      display: flex; justify-content: space-between;
+      padding: .6rem 0; border-bottom: 1px solid rgba(255,255,255,.05);
+      font-size: .84rem;
+    }
+    .h-row:last-child { border-bottom: none; }
+    .h-day { color: var(--gray); }
+    .h-time { font-weight: 500; }
+    .h-time.off { color: rgba(245,240,232,.22); }
+    .contact-list { display: flex; flex-direction: column; gap: 1.2rem; }
+    .c-item { display: flex; gap: .9rem; align-items: flex-start; }
+    .c-icon { color: var(--gold); font-size: 1.05rem; flex-shrink: 0; margin-top: .1rem; }
+    .c-item p { font-size: .88rem; color: var(--gray); line-height: 1.5; }
+    .c-item a { color: var(--gold); text-decoration: none; transition: color .2s; }
+    .c-item a:hover { color: var(--gold-light); }
+    .map-btn {
+      display: block; margin-top: 1.5rem;
+      background: rgba(201,169,110,.07);
+      border: 1px solid rgba(201,169,110,.18);
+      color: var(--gold); text-decoration: none;
+      font-size: .75rem; letter-spacing: .18em; text-transform: uppercase;
+      padding: .85rem 1.5rem; text-align: center;
+      transition: background .3s;
+    }
+    .map-btn:hover { background: rgba(201,169,110,.15); }
+
+    /* ─── CTA BAND ─── */
+    .cta-band {
+      position: relative; overflow: hidden;
+      text-align: center; padding: 9rem 2.5rem;
+    }
+    .cta-band::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 40%, rgba(201,169,110,.09) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .cta-band > * { position: relative; }
+    .cta-title {
+      font-family: var(--serif);
+      font-size: clamp(2.6rem, 5.5vw, 4.2rem);
+      font-weight: 600; color: var(--white);
+      margin-bottom: 1rem; line-height: 1.1;
+    }
+    .cta-title em { font-style: italic; color: var(--gold); }
+    .cta-sub { color: var(--gray); font-size: .95rem; font-weight: 300; margin-bottom: 2.8rem; }
+    .cta-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn-g {
+      background: var(--gold); color: var(--black);
+      padding: 1.05rem 2.6rem; font-size: .78rem; font-weight: 600;
+      letter-spacing: .2em; text-transform: uppercase;
+      text-decoration: none; display: inline-flex; align-items: center; gap: .55rem;
+      transition: background .3s, transform .25s;
+    }
+    .btn-g:hover { background: var(--gold-light); transform: translateY(-2px); }
+    .btn-o {
+      background: transparent; border: 1px solid rgba(245,240,232,.28); color: var(--white);
+      padding: 1.05rem 2.6rem; font-size: .78rem; font-weight: 500;
+      letter-spacing: .2em; text-transform: uppercase;
+      text-decoration: none; display: inline-flex; align-items: center; gap: .55rem;
+      transition: border-color .3s, color .3s;
+    }
+    .btn-o:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* ─── FOOTER ─── */
+    footer {
+      background: #060407;
+      border-top: 1px solid rgba(201,169,110,.1);
+      padding: 3.5rem 2.5rem;
+      text-align: center;
+    }
+    .f-logo { font-family: var(--serif); font-size: 2rem; font-weight: 700; color: var(--gold); }
+    .f-sub { font-size: .62rem; letter-spacing: .35em; text-transform: uppercase; color: rgba(245,240,232,.28); margin: .3rem 0 1.8rem; }
+    .f-links { display: flex; justify-content: center; gap: 2rem; margin-bottom: 2rem; flex-wrap: wrap; }
+    .f-links a {
+      font-size: .7rem; letter-spacing: .14em; text-transform: uppercase;
+      color: rgba(245,240,232,.35); text-decoration: none; transition: color .2s;
+    }
+    .f-links a:hover { color: var(--gold); }
+    .f-copy { font-size: .68rem; color: rgba(245,240,232,.18); }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 900px) {
+      nav { display: none; }
+      .ham { display: flex; }
+      .about-grid { grid-template-columns: 1fr; gap: 3.5rem; }
+      .info-grid { grid-template-columns: 1fr; }
+      .gallery-grid { grid-template-columns: repeat(2,1fr); grid-template-rows: auto; }
+      .g-item:first-child { grid-row: span 1; }
+      .g-item { height: 220px; }
+    }
+    @media (max-width: 600px) {
+      .sec { padding: 4.5rem 1.3rem; }
+      .sec-full { padding: 4.5rem 1.3rem; }
+      .gallery-grid { grid-template-columns: 1fr; }
+      .g-item { height: 200px; }
+      .cta-btns { flex-direction: column; align-items: center; }
+      .stats { gap: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header id="header">
+  <a href="#" class="logo">
+    <span class="logo-name">Alexys Style</span>
+    <span class="logo-sub">Luxury Hair Salon</span>
+  </a>
+  <nav>
+    <a href="#servicios">Servicios</a>
+    <a href="#galeria">Galería</a>
+    <a href="#resenas">Reseñas</a>
+    <a href="#contacto">Contacto</a>
+    <a href="https://wa.me/34642448364" target="_blank" rel="noopener" class="nav-cta">Reservar</a>
+  </nav>
+  <button class="ham" onclick="openMenu()" aria-label="Abrir menú">
+    <span></span><span></span><span></span>
+  </button>
+</header>
+
+<!-- MOBILE MENU -->
+<div id="mobileMenu">
+  <button class="m-close" onclick="closeMenu()">✕</button>
+  <a href="#servicios" onclick="closeMenu()">Servicios</a>
+  <a href="#galeria" onclick="closeMenu()">Galería</a>
+  <a href="#resenas" onclick="closeMenu()">Reseñas</a>
+  <a href="#contacto" onclick="closeMenu()">Contacto</a>
+  <a href="https://wa.me/34642448364" target="_blank" rel="noopener" onclick="closeMenu()">Reservar cita</a>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-bg" id="heroBg"></div>
+  <div class="hero-content">
+    <div class="hero-badge" id="hTag">Coslada, Madrid</div>
+    <h1 id="hTitle">
+      Alexys Style
+      <em>Luxury Hair Salon</em>
+    </h1>
+    <p class="hero-sub" id="hSub">Donde cada cabello cuenta su historia</p>
+    <a href="https://wa.me/34642448364" target="_blank" rel="noopener" class="hero-btn" id="hBtn">
+      Reservar cita por WhatsApp
+    </a>
+  </div>
+  <div class="hero-scroll-hint" id="hScroll">
+    <span>Scroll</span>
+    <div class="s-line"></div>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section class="sec" id="sobre">
+  <div class="about-grid">
+
+    <div class="about-img-wrap fu">
+      <!-- PLACEHOLDER: sustituye por foto de Cristina o del salón -->
+      <div class="about-img">
+        <div class="ph">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <path d="M21 15l-5-5L5 21"/>
+          </svg>
+          Foto de Cristina<br/>o del salón
+        </div>
+      </div>
+      <div class="badge">
+        <big>★</big>
+        <small>Top<br/>Coslada</small>
+      </div>
+    </div>
+
+    <div>
+      <span class="tag fu">Sobre nosotras</span>
+      <h2 class="title fu">Cristina, tu artista<br/><em>del cabello</em></h2>
+      <div class="g-line fu"></div>
+      <p class="fu">En <strong>Alexys Style</strong> creemos que el cabello es la joya más visible de tu personalidad. Cada visita es una experiencia única donde técnica, cuidado y talento se unen para darte el resultado que siempre deseaste.</p>
+      <p class="fu">Cristina es reconocida en Coslada por su <strong>maestría en rubios</strong> — balayages, mechas y tintes que parecen obra de arte. Cada trabajo es artesanal, personalizado y pensado para realzar tu belleza natural.</p>
+      <p class="fu">Desde el momento en que entras, te sentirás <strong>en casa</strong>. Aquí no solo transformamos tu look, cuidamos tu cabello y tu bienestar.</p>
+      <div class="stats fu">
+        <div class="stat">
+          <div class="stat-n">5★</div>
+          <div class="stat-l">Valoración media</div>
+        </div>
+        <div class="stat">
+          <div class="stat-n">+5</div>
+          <div class="stat-l">Reseñas reales</div>
+        </div>
+        <div class="stat">
+          <div class="stat-n">100%</div>
+          <div class="stat-l">Dedicación</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- SERVICES -->
+<div class="sec-full" id="servicios">
+  <div class="sec-inner">
+    <span class="tag fu">Lo que hacemos</span>
+    <h2 class="title fu">Servicios <em>&amp; Precios</em></h2>
+    <div class="g-line fu"></div>
+    <div class="svc-grid fu">
+
+      <div class="svc-cat">
+        <div class="svc-cat-h">✂️ Cortes</div>
+        <div class="svc-row"><span class="svc-n">Corte + Lavado + Secado (mujer)</span><span class="svc-p">25€</span></div>
+        <div class="svc-row"><span class="svc-n">Corte + Lavado + Secado (hombre)</span><span class="svc-p">15€</span></div>
+        <div class="svc-row"><span class="svc-n">Lavado + Secado</span><span class="svc-p">15€</span></div>
+        <div class="svc-row"><span class="svc-n">Retoque de flequillo</span><span class="svc-p">8€</span></div>
+      </div>
+
+      <div class="svc-cat">
+        <div class="svc-cat-h">🎨 Color &amp; Tintes</div>
+        <div class="svc-row"><span class="svc-n">Tinte raíces</span><span class="svc-p">40€</span></div>
+        <div class="svc-row"><span class="svc-n">Tinte completo</span><span class="svc-p">55€</span></div>
+        <div class="svc-row"><span class="svc-n">Baño de color / Matizador</span><span class="svc-p">30€</span></div>
+        <div class="svc-row"><span class="svc-n">Mechas clásicas</span><span class="svc-p">desde 65€</span></div>
+        <div class="svc-row"><span class="svc-n">Balayage / Ombré</span><span class="svc-p">desde 95€</span></div>
+      </div>
+
+      <div class="svc-cat">
+        <div class="svc-cat-h">💆 Tratamientos</div>
+        <div class="svc-row"><span class="svc-n">Hidratación profunda</span><span class="svc-p">35€</span></div>
+        <div class="svc-row"><span class="svc-n">Botox capilar</span><span class="svc-p">50€</span></div>
+        <div class="svc-row"><span class="svc-n">Keratina brasileña</span><span class="svc-p">desde 70€</span></div>
+        <div class="svc-row"><span class="svc-n">Mascarilla nutritiva</span><span class="svc-p">20€</span></div>
+      </div>
+
+      <div class="svc-cat">
+        <div class="svc-cat-h">✨ Extensiones &amp; Más</div>
+        <div class="svc-row">
+          <span class="svc-n">Extensiones</span>
+          <span class="svc-p">desde 180€<small>Según cantidad y largo</small></span>
+        </div>
+        <div class="svc-row"><span class="svc-n">Peinado / Recogido</span><span class="svc-p">desde 30€</span></div>
+        <div class="svc-row"><span class="svc-n">Ondas / Permanente</span><span class="svc-p">desde 55€</span></div>
+        <div class="svc-row"><span class="svc-n">Consulta de color</span><span class="svc-p">Gratis</span></div>
+      </div>
+
+    </div>
+    <p class="svc-note fu">* Precios orientativos. El precio final puede variar según longitud y densidad del cabello. Consulta sin compromiso.</p>
+  </div>
+</div>
+
+<!-- GALLERY -->
+<section class="sec" id="galeria">
+  <span class="tag fu">Nuestro trabajo</span>
+  <h2 class="title fu">Galería</h2>
+  <div class="g-line fu"></div>
+  <div class="gallery-grid fu">
+    <div class="g-item"><img src="https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=800&q=80" alt="Coloración de cabello rubio" loading="lazy" /></div>
+    <div class="g-item"><img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=700&q=80" alt="Peinado en salón" loading="lazy" /></div>
+    <div class="g-item"><img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=700&q=80" alt="Interior del salón" loading="lazy" /></div>
+    <div class="g-item"><img src="https://images.unsplash.com/photo-1492106087820-71f1a00d2b11?w=700&q=80" alt="Corte de cabello" loading="lazy" /></div>
+    <div class="g-item"><img src="https://images.unsplash.com/photo-1519500099198-fd81846b8d4e?w=700&q=80" alt="Cabello rubio resultado" loading="lazy" /></div>
+  </div>
+  <p class="gallery-hint fu">📸 Cuando tengas tus fotos reales, dímelo y las cambio</p>
+</section>
+
+<!-- TESTIMONIALS -->
+<div class="sec-full" id="resenas">
+  <div class="sec-inner">
+    <span class="tag fu">Lo que dicen</span>
+    <h2 class="title fu">Reseñas <em>reales</em></h2>
+    <div class="g-line fu"></div>
+    <div class="testi-grid">
+
+      <div class="testi-card fu">
+        <div class="stars">★★★★★</div>
+        <p class="testi-text">"Cristina es la mejor, sin duda! Si tu pelo necesita rescate, Cristina es la solución 🥰"</p>
+        <div class="testi-author">
+          <div class="avatar">C</div>
+          <div><div class="author-name">Cosmina Bozi</div><div class="author-src">Google Reviews</div></div>
+        </div>
+      </div>
+
+      <div class="testi-card fu">
+        <div class="stars">★★★★★</div>
+        <p class="testi-text">"He probado muchas peluquerías, pero ninguna como Cristina. Ella es una artista con los rubios, te deja el pelo espectacular y además te hace sentir como en casa. Simplemente es la mejor ❤️"</p>
+        <div class="testi-author">
+          <div class="avatar">Y</div>
+          <div><div class="author-name">Yordanka Hristova</div><div class="author-src">Google Reviews</div></div>
+        </div>
+      </div>
+
+      <div class="testi-card fu">
+        <div class="stars">★★★★★</div>
+        <p class="testi-text">"Muy buena atención y resultado. La peluquera fue muy profesional y trató a mi esposa con mucha amabilidad. Recomiendo."</p>
+        <div class="testi-author">
+          <div class="avatar">I</div>
+          <div><div class="author-name">Ionut Stefan Anghel</div><div class="author-src">Google Reviews</div></div>
+        </div>
+      </div>
+
+      <div class="testi-card fu">
+        <div class="stars">★★★★★</div>
+        <p class="testi-text">"Son unas profesionales de los pies a la cabeza. Cristina tiene manos de oro. Enamorada de mi cambio de look y del rubio tan bonito que me dejaron."</p>
+        <div class="testi-author">
+          <div class="avatar">A</div>
+          <div><div class="author-name">Ana M</div><div class="author-src">Google Reviews</div></div>
+        </div>
+      </div>
+
+      <div class="testi-card fu">
+        <div class="stars">★★★★★</div>
+        <p class="testi-text">"Una peluquería de 100. Cristina, una de las mejores peluqueras que encontré. Me arregló el pelo de un trabajo muy mal hecho. Volvería 1000 veces más."</p>
+        <div class="testi-author">
+          <div class="avatar">A</div>
+          <div><div class="author-name">Andreea Ganea</div><div class="author-src">Google Reviews</div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- HOURS & CONTACT -->
+<section class="sec" id="contacto">
+  <span class="tag fu">Visítanos</span>
+  <h2 class="title fu">Horario <em>&amp; Contacto</em></h2>
+  <div class="g-line fu"></div>
+  <div class="info-grid fu">
+
+    <div class="info-card">
+      <div class="info-card-h">🕐 Horario semanal</div>
+      <div class="h-row"><span class="h-day">Lunes</span><span class="h-time">10:00 – 14:00</span></div>
+      <div class="h-row"><span class="h-day">Martes</span><span class="h-time">10:00 – 14:00</span></div>
+      <div class="h-row"><span class="h-day">Miércoles</span><span class="h-time">10:00 – 14:00</span></div>
+      <div class="h-row"><span class="h-day">Jueves</span><span class="h-time">10:00 – 14:00</span></div>
+      <div class="h-row"><span class="h-day">Viernes</span><span class="h-time">10:00 – 14:00</span></div>
+      <div class="h-row"><span class="h-day">Sábado</span><span class="h-time off">Cerrado</span></div>
+      <div class="h-row"><span class="h-day">Domingo</span><span class="h-time off">Cerrado</span></div>
+    </div>
+
+    <div class="info-card">
+      <div class="info-card-h">📍 Cómo encontrarnos</div>
+      <div class="contact-list">
+        <div class="c-item">
+          <span class="c-icon">📍</span>
+          <p>Calle del Dr. Ochoa, 6, local izquierda<br/>28821 Coslada, Madrid</p>
+        </div>
+        <div class="c-item">
+          <span class="c-icon">📞</span>
+          <p><a href="tel:+34642448364">642 448 364</a></p>
+        </div>
+        <div class="c-item">
+          <span class="c-icon">💬</span>
+          <p><a href="https://wa.me/34642448364" target="_blank" rel="noopener">WhatsApp — Reservar cita</a></p>
+        </div>
+        <div class="c-item">
+          <span class="c-icon">📸</span>
+          <p><a href="https://www.instagram.com/allexysstyle" target="_blank" rel="noopener">@allexysstyle</a></p>
+        </div>
+      </div>
+      <a href="https://www.google.com/maps/search/?api=1&query=Calle+del+Dr.+Ochoa+6+28821+Coslada+Madrid" target="_blank" rel="noopener" class="map-btn">
+        📍 Ver en Google Maps →
+      </a>
+    </div>
+
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-band">
+  <span class="tag fu" style="margin-bottom:.8rem;">¿Lista para el cambio?</span>
+  <h2 class="cta-title fu">Tu mejor versión<br/><em>empieza aquí</em></h2>
+  <p class="cta-sub fu">Reserva tu cita y déjate transformar por Cristina</p>
+  <div class="cta-btns fu">
+    <a href="https://wa.me/34642448364" target="_blank" rel="noopener" class="btn-g">💬 Reservar por WhatsApp</a>
+    <a href="https://www.instagram.com/allexysstyle" target="_blank" rel="noopener" class="btn-o">📸 Ver en Instagram</a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="f-logo">Alexys Style</div>
+  <div class="f-sub">Luxury Hair Salon · Coslada, Madrid</div>
+  <div class="f-links">
+    <a href="#servicios">Servicios</a>
+    <a href="#galeria">Galería</a>
+    <a href="#resenas">Reseñas</a>
+    <a href="#contacto">Contacto</a>
+    <a href="https://wa.me/34642448364" target="_blank" rel="noopener">WhatsApp</a>
+    <a href="https://www.instagram.com/allexysstyle" target="_blank" rel="noopener">Instagram</a>
+  </div>
+  <p class="f-copy">© 2025 Alexys Style · Calle del Dr. Ochoa, 6 · Coslada, Madrid</p>
+</footer>
+
+<script>
+  // Header scroll effect
+  const hdr = document.getElementById('header');
+  window.addEventListener('scroll', () => {
+    hdr.classList.toggle('scrolled', window.scrollY > 60);
+  }, { passive: true });
+
+  // Hero parallax
+  const heroBg = document.getElementById('heroBg');
+  window.addEventListener('scroll', () => {
+    heroBg.style.transform = `scale(1.06) translateY(${window.pageYOffset * 0.28}px)`;
+  }, { passive: true });
+
+  // Mobile menu
+  function openMenu() {
+    document.getElementById('mobileMenu').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeMenu() {
+    document.getElementById('mobileMenu').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  // Hero entrance animation
+  window.addEventListener('DOMContentLoaded', () => {
+    gsap.set(['#hTag', '#hTitle', '#hSub', '#hBtn'], { y: 22 });
+    gsap.timeline({ delay: 0.25 })
+      .to('#hTag',    { opacity: 1, y: 0, duration: 0.75, ease: 'power2.out' })
+      .to('#hTitle',  { opacity: 1, y: 0, duration: 0.85, ease: 'power2.out' }, '-=0.45')
+      .to('#hSub',    { opacity: 1, y: 0, duration: 0.75, ease: 'power2.out' }, '-=0.5')
+      .to('#hBtn',    { opacity: 1, y: 0, duration: 0.65, ease: 'power2.out' }, '-=0.45')
+      .to('#hScroll', { opacity: 1,        duration: 0.6,  ease: 'power2.out' }, '-=0.3');
+  });
+
+  // Scroll reveal for all .fu elements
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('in'), i * 75);
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+
+  document.querySelectorAll('.fu').forEach(el => io.observe(el));
+</script>
+</body>
+</html>
