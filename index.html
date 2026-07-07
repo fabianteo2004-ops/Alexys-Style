@@ -549,7 +549,21 @@
 
       /* About */
       .img-frame { max-width: 100%; }
-      .stats-row { gap: .8rem; }
+      .about-text { text-align: center; }
+      .about-text .eyebrow { justify-content: center; }
+      .about-text .divider { margin: 0 auto 2.5rem; }
+      .about-text .heading { font-size: clamp(2rem, 7vw, 2.6rem); line-height: 1.15; }
+      .about-text p {
+        font-size: 1rem; line-height: 1.9;
+        color: rgba(244,239,230,.7);
+        font-family: var(--serif); font-weight: 400;
+        font-style: italic; letter-spacing: .02em;
+        border-left: 2px solid rgba(201,169,110,.3);
+        padding-left: 1.2rem; text-align: left;
+        margin-bottom: 1.4rem;
+      }
+      .about-text strong { color: var(--gold); font-style: normal; font-weight: 600; }
+      .stats-row { gap: .8rem; text-align: center; justify-content: center; }
       .stat-val { font-size: 2rem; }
       .stat-lbl { font-size: .58rem; }
 
@@ -686,8 +700,8 @@
       <p class="reveal">Cristina es reconocida en Coslada por su <strong>maestría en rubios</strong> — balayages, mechas y tintes que parecen obra de arte. Cada trabajo es artesanal, personalizado y pensado para realzar tu belleza natural.</p>
       <p class="reveal">Desde el momento en que entras, te sentirás <strong>en casa</strong>. Aquí no solo transformamos tu look, cuidamos tu cabello y tu bienestar.</p>
       <div class="stats-row reveal">
-        <div class="stat-item"><div class="stat-val">5★</div><div class="stat-lbl">Valoración Google</div></div>
-        <div class="stat-item"><div class="stat-val">+5</div><div class="stat-lbl">Reseñas reales</div></div>
+        <div class="stat-item"><div class="stat-val">4,6★</div><div class="stat-lbl">Valoración Google</div></div>
+        <div class="stat-item"><div class="stat-val">108</div><div class="stat-lbl">Reseñas reales</div></div>
         <div class="stat-item"><div class="stat-val">∞</div><div class="stat-lbl">Dedicación</div></div>
       </div>
     </div>
@@ -749,8 +763,8 @@
   <h2 class="heading reveal">Galería</h2>
   <div class="divider reveal"></div>
   <div class="gallery-grid reveal">
-    <div class="g-item" data-src="https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=1400&q=90">
-      <img src="https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=800&q=80" alt="Coloración rubio" loading="lazy"/>
+    <div class="g-item" data-src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1400&q=90">
+      <img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=900&q=85" alt="Peinado salón" loading="lazy"/>
       <div class="g-overlay"><div class="g-plus">+</div></div>
     </div>
     <div class="g-item" data-src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1400&q=90">
