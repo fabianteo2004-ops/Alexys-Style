@@ -10,14 +10,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/TextPlugin.min.js"></script>
+  <script src="https://unpkg.com/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
 
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
       --black:      #080609;
-      --dark:       #100e17;
-      --card:       #17141f;
+      --dark:       #0d0b14;
+      --card:       #14111c;
       --gold:       #c9a96e;
       --gold-light: #e2c998;
       --gold-dark:  #9d7c44;
@@ -27,7 +29,7 @@
       --sans:       'Raleway', system-ui, sans-serif;
     }
 
-    html { scroll-behavior: smooth; }
+    html { scroll-behavior: auto; } /* Lenis maneja el scroll */
 
     body {
       background: var(--black);
@@ -36,6 +38,39 @@
       font-weight: 400;
       line-height: 1.7;
       overflow-x: hidden;
+      cursor: none; /* cursor personalizado */
+    }
+
+    /* ─── CURSOR PERSONALIZADO ─── */
+    #cursor {
+      position: fixed;
+      width: 18px; height: 18px;
+      border: 1.5px solid var(--gold);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: width .2s, height .2s, background .2s, opacity .3s;
+      mix-blend-mode: normal;
+    }
+    #cursor-dot {
+      position: fixed;
+      width: 4px; height: 4px;
+      background: var(--gold);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+    }
+    body:has(a:hover) #cursor,
+    body:has(button:hover) #cursor { width: 36px; height: 36px; background: rgba(201,169,110,.1); }
+
+    /* ─── CANVAS BLOBS ─── */
+    #blobCanvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
     }
 
     /* ─── HEADER ─── */
@@ -50,37 +85,29 @@
       transition: background .4s, box-shadow .4s;
     }
     #header.scrolled {
-      background: rgba(8,6,9,.9);
-      backdrop-filter: blur(14px);
+      background: rgba(8,6,9,.92);
+      backdrop-filter: blur(16px);
       box-shadow: 0 1px 0 rgba(201,169,110,.12);
     }
 
     .logo { text-decoration: none; }
     .logo-name {
       font-family: var(--serif);
-      font-size: 1.45rem;
-      font-weight: 700;
-      color: var(--gold);
-      letter-spacing: .04em;
-      display: block;
-      line-height: 1;
+      font-size: 1.45rem; font-weight: 700;
+      color: var(--gold); letter-spacing: .04em;
+      display: block; line-height: 1;
     }
     .logo-sub {
-      font-size: .58rem;
-      letter-spacing: .32em;
+      font-size: .58rem; letter-spacing: .32em;
       text-transform: uppercase;
       color: rgba(245,240,232,.4);
-      display: block;
-      margin-top: .15rem;
+      display: block; margin-top: .15rem;
     }
 
     nav { display: flex; gap: 2rem; align-items: center; }
     nav a {
-      font-size: .72rem;
-      letter-spacing: .18em;
-      text-transform: uppercase;
-      color: rgba(245,240,232,.65);
-      text-decoration: none;
+      font-size: .72rem; letter-spacing: .18em; text-transform: uppercase;
+      color: rgba(245,240,232,.65); text-decoration: none;
       transition: color .2s;
     }
     nav a:hover { color: var(--gold); }
@@ -93,66 +120,49 @@
     }
     .nav-cta:hover { background: var(--gold) !important; color: var(--black) !important; }
 
-    /* ─── HAMBURGER ─── */
     .ham {
-      display: none;
-      flex-direction: column;
-      gap: 5px;
-      cursor: pointer;
-      padding: .4rem;
-      background: none;
-      border: none;
+      display: none; flex-direction: column; gap: 5px;
+      cursor: none; padding: .4rem;
+      background: none; border: none;
     }
-    .ham span {
-      display: block; width: 24px; height: 1px;
-      background: var(--white);
-    }
+    .ham span { display: block; width: 24px; height: 1px; background: var(--white); }
 
-    /* ─── MOBILE MENU ─── */
     #mobileMenu {
-      display: none;
-      position: fixed; inset: 0;
-      background: rgba(8,6,9,.97);
-      z-index: 300;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 2.5rem;
+      display: none; position: fixed; inset: 0;
+      background: rgba(8,6,9,.97); z-index: 300;
+      flex-direction: column; align-items: center; justify-content: center; gap: 2.5rem;
     }
     #mobileMenu.open { display: flex; }
     #mobileMenu a {
-      font-family: var(--serif);
-      font-size: 2.2rem;
-      color: var(--white);
-      text-decoration: none;
-      transition: color .2s;
+      font-family: var(--serif); font-size: 2.2rem;
+      color: var(--white); text-decoration: none; transition: color .2s;
     }
     #mobileMenu a:hover { color: var(--gold); }
     .m-close {
       position: absolute; top: 1.5rem; right: 2rem;
       font-size: 1.6rem; color: var(--white);
-      background: none; border: none; cursor: pointer;
+      background: none; border: none; cursor: none;
     }
 
     /* ─── HERO ─── */
     .hero {
       position: relative;
-      height: 100vh; min-height: 640px;
+      height: 100vh; min-height: 660px;
       display: flex; align-items: center; justify-content: center;
-      text-align: center;
-      overflow: hidden;
+      text-align: center; overflow: hidden;
+      z-index: 1;
     }
     .hero-bg {
       position: absolute; inset: 0;
       background:
-        linear-gradient(to bottom, rgba(8,6,9,.2) 0%, rgba(8,6,9,.55) 55%, var(--black) 100%),
+        linear-gradient(to bottom, rgba(8,6,9,.15) 0%, rgba(8,6,9,.5) 60%, var(--black) 100%),
         url('https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1600&q=80') center/cover no-repeat;
       transform: scale(1.06);
       will-change: transform;
     }
     .hero-content {
       position: relative; z-index: 2;
-      max-width: 720px; padding: 2rem;
+      max-width: 900px; padding: 2rem;
     }
     .hero-badge {
       display: inline-block;
@@ -162,36 +172,78 @@
       padding: .38rem 1.3rem; margin-bottom: 2rem;
       opacity: 0;
     }
+
+    /* shimmer en el título */
     .hero h1 {
       font-family: var(--serif);
-      font-size: clamp(3.8rem, 9vw, 7.5rem);
-      font-weight: 700; line-height: .95;
-      letter-spacing: .02em; color: var(--white);
+      font-size: clamp(4.5rem, 11vw, 9rem);
+      font-weight: 700; line-height: .92;
+      letter-spacing: .01em;
+      background: linear-gradient(
+        90deg,
+        var(--white) 0%,
+        var(--white) 35%,
+        var(--gold-light) 50%,
+        var(--white) 65%,
+        var(--white) 100%
+      );
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 4s linear infinite;
       margin-bottom: .5rem;
       opacity: 0;
     }
+    @keyframes shimmer {
+      0%   { background-position: 200% center; }
+      100% { background-position: -200% center; }
+    }
     .hero h1 em {
       display: block;
-      font-style: italic; color: var(--gold);
-      font-size: .52em; font-weight: 400; letter-spacing: .14em;
+      font-style: italic;
+      font-size: .5em; font-weight: 400; letter-spacing: .14em;
+      background: linear-gradient(90deg, var(--gold-dark), var(--gold-light), var(--gold-dark));
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 3s linear infinite;
       margin-top: .4rem;
     }
     .hero-sub {
-      font-size: 1rem; font-weight: 300; letter-spacing: .06em;
-      color: rgba(245,240,232,.75);
-      margin-bottom: 2.8rem;
+      font-size: 1.05rem; font-weight: 300; letter-spacing: .06em;
+      color: rgba(245,240,232,.8);
+      margin-bottom: 2.8rem; min-height: 1.6em;
       opacity: 0;
     }
+
+    /* CTA con ripple */
     .hero-btn {
-      display: inline-block;
+      display: inline-block; position: relative; overflow: hidden;
       background: var(--gold); color: var(--black);
       font-size: .75rem; font-weight: 600;
       letter-spacing: .22em; text-transform: uppercase;
-      text-decoration: none; padding: 1.05rem 2.8rem;
+      text-decoration: none; padding: 1.1rem 3rem;
       opacity: 0;
       transition: background .3s, transform .25s;
     }
+    .hero-btn::after {
+      content: ''; position: absolute;
+      inset: 0; background: rgba(255,255,255,0);
+      transition: background .4s;
+    }
     .hero-btn:hover { background: var(--gold-light); transform: translateY(-2px); }
+    .hero-btn:hover::after { background: rgba(255,255,255,.08); }
+    .ripple {
+      position: absolute; border-radius: 50%;
+      background: rgba(255,255,255,.35);
+      transform: scale(0); animation: ripple-anim .6s linear;
+      pointer-events: none;
+    }
+    @keyframes ripple-anim {
+      to { transform: scale(4); opacity: 0; }
+    }
 
     .hero-scroll-hint {
       position: absolute; bottom: 2.2rem; left: 50%;
@@ -199,9 +251,7 @@
       display: flex; flex-direction: column; align-items: center; gap: .45rem;
       opacity: 0;
     }
-    .hero-scroll-hint span {
-      font-size: .62rem; letter-spacing: .26em; text-transform: uppercase; color: var(--gold);
-    }
+    .hero-scroll-hint span { font-size: .62rem; letter-spacing: .26em; text-transform: uppercase; color: var(--gold); }
     .s-line {
       width: 1px; height: 42px;
       background: linear-gradient(to bottom, var(--gold), transparent);
@@ -214,22 +264,28 @@
       100% { transform: scaleY(0); transform-origin: bottom; }
     }
 
-    /* ─── SECTION BASE ─── */
+    /* ─── WAVE SEPARADOR ─── */
+    .wave-sep { display: block; width: 100%; overflow: hidden; line-height: 0; position: relative; z-index: 1; }
+    .wave-sep svg { display: block; }
+
+    /* ─── SECTIONS ─── */
     .sec {
+      position: relative; z-index: 1;
       padding: 7rem 2.5rem;
-      max-width: 1200px;
-      margin: 0 auto;
+      max-width: 1200px; margin: 0 auto;
     }
     .sec-full {
+      position: relative; z-index: 1;
       padding: 7rem 2.5rem;
-      background: var(--dark);
+      background: rgba(13,11,20,.85);
+      backdrop-filter: blur(2px);
     }
     .sec-inner { max-width: 1200px; margin: 0 auto; }
 
     .tag {
-      display: block;
-      font-size: .65rem; letter-spacing: .38em; text-transform: uppercase;
-      color: var(--gold); margin-bottom: .7rem;
+      display: block; font-size: .65rem; letter-spacing: .38em;
+      text-transform: uppercase; color: var(--gold); margin-bottom: .7rem;
+      min-height: 1em;
     }
     .title {
       font-family: var(--serif);
@@ -240,18 +296,14 @@
     .title em { font-style: italic; color: var(--gold); }
     .g-line { width: 60px; height: 1px; background: var(--gold); margin-bottom: 2.8rem; }
 
-    /* ─── FADE UP ─── */
     .fu {
       opacity: 0; transform: translateY(36px);
-      transition: opacity .75s ease, transform .75s ease;
+      transition: opacity .8s ease, transform .8s ease;
     }
     .fu.in { opacity: 1; transform: translateY(0); }
 
     /* ─── ABOUT ─── */
-    .about-grid {
-      display: grid; grid-template-columns: 1fr 1fr;
-      gap: 5rem; align-items: center;
-    }
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; }
     .about-img-wrap { position: relative; }
     .about-img {
       width: 100%; aspect-ratio: 3/4;
@@ -278,22 +330,12 @@
     .badge small { font-size: .58rem; letter-spacing: .05em; line-height: 1.3; }
     .about-text p { color: var(--gray); font-size: .92rem; margin-bottom: 1.1rem; }
     .about-text strong { color: var(--gold); font-weight: 600; }
-    .stats {
-      display: flex; gap: 2rem;
-      margin-top: 2.5rem; padding-top: 2rem;
-      border-top: 1px solid rgba(201,169,110,.14);
-    }
+    .stats { display: flex; gap: 2rem; margin-top: 2.5rem; padding-top: 2rem; border-top: 1px solid rgba(201,169,110,.14); }
     .stat { flex: 1; text-align: center; }
-    .stat-n {
-      font-family: var(--serif); font-size: 2.6rem; color: var(--gold); font-weight: 700;
-      line-height: 1;
-    }
-    .stat-l {
-      font-size: .65rem; letter-spacing: .18em; text-transform: uppercase;
-      color: rgba(245,240,232,.3); margin-top: .3rem;
-    }
+    .stat-n { font-family: var(--serif); font-size: 2.6rem; color: var(--gold); font-weight: 700; line-height: 1; }
+    .stat-l { font-size: .65rem; letter-spacing: .18em; text-transform: uppercase; color: rgba(245,240,232,.3); margin-top: .3rem; }
 
-    /* ─── SERVICES ─── */
+    /* ─── SERVICES con borde animado ─── */
     .svc-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -302,11 +344,22 @@
       border: 1px solid rgba(201,169,110,.08);
     }
     .svc-cat {
-      background: var(--dark);
-      padding: 2.2rem;
+      background: rgba(13,11,20,.9);
+      padding: 2.2rem; position: relative;
       transition: background .3s;
+      overflow: hidden;
     }
-    .svc-cat:hover { background: #1c192a; }
+    .svc-cat::before {
+      content: '';
+      position: absolute; inset: 0;
+      border: 1.5px solid var(--gold);
+      opacity: 0;
+      transform: scale(.96);
+      transition: opacity .35s, transform .35s;
+    }
+    .svc-cat:hover { background: rgba(28,25,42,.9); }
+    .svc-cat:hover::before { opacity: 1; transform: scale(1); }
+    .svc-cat:hover { box-shadow: 0 0 30px rgba(201,169,110,.1); }
     .svc-cat-h {
       font-family: var(--serif); font-size: 1.05rem; color: var(--gold);
       margin-bottom: 1.4rem; padding-bottom: .8rem;
@@ -315,22 +368,15 @@
     }
     .svc-row {
       display: flex; justify-content: space-between; align-items: baseline;
-      padding: .6rem 0; border-bottom: 1px solid rgba(255,255,255,.05);
-      gap: .8rem;
+      padding: .6rem 0; border-bottom: 1px solid rgba(255,255,255,.05); gap: .8rem;
     }
     .svc-row:last-child { border-bottom: none; }
     .svc-n { font-size: .83rem; color: rgba(245,240,232,.78); }
     .svc-p { font-size: .88rem; font-weight: 600; color: var(--gold); white-space: nowrap; }
-    .svc-p small {
-      display: block; font-size: .68rem; color: rgba(245,240,232,.35);
-      font-weight: 400; margin-top: .2rem;
-    }
-    .svc-note {
-      margin-top: 1.1rem; font-size: .72rem;
-      color: rgba(245,240,232,.3); letter-spacing: .04em;
-    }
+    .svc-p small { display: block; font-size: .68rem; color: rgba(245,240,232,.35); font-weight: 400; margin-top: .2rem; }
+    .svc-note { margin-top: 1.1rem; font-size: .72rem; color: rgba(245,240,232,.3); letter-spacing: .04em; }
 
-    /* ─── GALLERY ─── */
+    /* ─── GALLERY + LIGHTBOX ─── */
     .gallery-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -340,75 +386,101 @@
     .g-item {
       background: var(--card);
       border: 1px solid rgba(201,169,110,.08);
-      overflow: hidden; position: relative; cursor: pointer;
+      overflow: hidden; position: relative; cursor: none;
     }
     .g-item:first-child { grid-row: span 2; }
-    .g-item img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s ease; }
-    .g-item:hover img { transform: scale(1.06); }
-    .g-ph {
-      width: 100%; height: 100%; min-height: 140px;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: .5rem; color: rgba(201,169,110,.28);
-      font-size: .68rem; letter-spacing: .2em; text-transform: uppercase;
+    .g-item img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s ease; display: block; }
+    .g-item:hover img { transform: scale(1.07); }
+    .g-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(201,169,110,.45) 0%, transparent 60%);
+      opacity: 0; transition: opacity .4s;
+      display: flex; align-items: center; justify-content: center;
     }
-    .g-ph svg { width: 1.8rem; height: 1.8rem; }
-    .gallery-hint {
-      margin-top: 1.2rem; font-size: .8rem;
-      color: rgba(245,240,232,.3); letter-spacing: .04em;
+    .g-item:hover .g-overlay { opacity: 1; }
+    .g-overlay-icon {
+      width: 48px; height: 48px; border-radius: 50%;
+      background: rgba(8,6,9,.6); border: 1px solid var(--gold);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--gold); font-size: 1.2rem;
+      transform: scale(.8); transition: transform .3s;
     }
-    .gallery-hint code { color: var(--gold); background: rgba(201,169,110,.1); padding: .15rem .4rem; }
+    .g-item:hover .g-overlay-icon { transform: scale(1); }
+    .gallery-hint { margin-top: 1.2rem; font-size: .8rem; color: rgba(245,240,232,.3); letter-spacing: .04em; }
 
-    /* ─── TESTIMONIALS ─── */
+    /* Lightbox */
+    #lightbox {
+      position: fixed; inset: 0; z-index: 1000;
+      background: rgba(4,3,6,.96);
+      display: none; align-items: center; justify-content: center;
+      backdrop-filter: blur(8px);
+    }
+    #lightbox.open { display: flex; }
+    #lb-img {
+      max-width: 90vw; max-height: 85vh;
+      object-fit: contain;
+      border: 1px solid rgba(201,169,110,.2);
+      animation: lbIn .3s ease;
+    }
+    @keyframes lbIn { from { opacity:0; transform:scale(.95); } to { opacity:1; transform:scale(1); } }
+    #lb-close {
+      position: absolute; top: 1.5rem; right: 2rem;
+      font-size: 1.8rem; color: var(--gold);
+      background: none; border: none; cursor: none; opacity: .7;
+      transition: opacity .2s;
+    }
+    #lb-close:hover { opacity: 1; }
+    .lb-arrow {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      background: rgba(8,6,9,.5); border: 1px solid rgba(201,169,110,.3);
+      color: var(--gold); font-size: 1.5rem;
+      padding: .8rem 1rem; cursor: none;
+      transition: background .2s; border-radius: 2px;
+    }
+    .lb-arrow:hover { background: rgba(201,169,110,.15); }
+    #lb-prev { left: 1.5rem; }
+    #lb-next { right: 1.5rem; }
+
+    /* ─── TESTIMONIALS con glow ─── */
     .testi-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
       gap: 1.2rem;
     }
     .testi-card {
-      background: var(--card);
+      background: rgba(20,17,28,.9);
       border: 1px solid rgba(201,169,110,.1);
       padding: 2rem; position: relative;
-      transition: border-color .3s, transform .3s;
+      transition: border-color .3s, transform .3s, box-shadow .3s;
     }
-    .testi-card:hover { border-color: rgba(201,169,110,.4); transform: translateY(-4px); }
+    .testi-card:hover {
+      border-color: rgba(201,169,110,.45);
+      transform: translateY(-5px);
+      box-shadow: 0 12px 40px rgba(201,169,110,.1), 0 0 0 1px rgba(201,169,110,.08);
+    }
     .testi-card::before {
       content: '\201C';
       position: absolute; top: .8rem; right: 1.2rem;
       font-family: var(--serif); font-size: 5.5rem; line-height: 1;
-      color: rgba(201,169,110,.06); pointer-events: none;
+      color: rgba(201,169,110,.07); pointer-events: none;
     }
     .stars { color: var(--gold); font-size: .78rem; letter-spacing: .08em; margin-bottom: .9rem; }
-    .testi-text {
-      font-size: .88rem; line-height: 1.72;
-      color: rgba(245,240,232,.72); font-style: italic; margin-bottom: 1.4rem;
-    }
+    .testi-text { font-size: .88rem; line-height: 1.72; color: rgba(245,240,232,.72); font-style: italic; margin-bottom: 1.4rem; }
     .testi-author { display: flex; align-items: center; gap: .8rem; }
     .avatar {
       width: 40px; height: 40px; border-radius: 50%;
       background: var(--gold); color: var(--black);
       display: flex; align-items: center; justify-content: center;
-      font-family: var(--serif); font-weight: 700; font-size: 1rem;
-      flex-shrink: 0;
+      font-family: var(--serif); font-weight: 700; font-size: 1rem; flex-shrink: 0;
     }
     .author-name { font-size: .83rem; font-weight: 600; color: var(--white); }
     .author-src { font-size: .68rem; color: rgba(245,240,232,.35); }
 
     /* ─── HOURS + CONTACT ─── */
     .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
-    .info-card {
-      background: var(--card);
-      border: 1px solid rgba(201,169,110,.12);
-      padding: 2.5rem;
-    }
-    .info-card-h {
-      font-family: var(--serif); font-size: 1.2rem; color: var(--gold);
-      margin-bottom: 1.8rem; display: flex; align-items: center; gap: .7rem;
-    }
-    .h-row {
-      display: flex; justify-content: space-between;
-      padding: .6rem 0; border-bottom: 1px solid rgba(255,255,255,.05);
-      font-size: .84rem;
-    }
+    .info-card { background: rgba(20,17,28,.9); border: 1px solid rgba(201,169,110,.12); padding: 2.5rem; }
+    .info-card-h { font-family: var(--serif); font-size: 1.2rem; color: var(--gold); margin-bottom: 1.8rem; display: flex; align-items: center; gap: .7rem; }
+    .h-row { display: flex; justify-content: space-between; padding: .6rem 0; border-bottom: 1px solid rgba(255,255,255,.05); font-size: .84rem; }
     .h-row:last-child { border-bottom: none; }
     .h-day { color: var(--gray); }
     .h-time { font-weight: 500; }
@@ -421,33 +493,25 @@
     .c-item a:hover { color: var(--gold-light); }
     .map-btn {
       display: block; margin-top: 1.5rem;
-      background: rgba(201,169,110,.07);
-      border: 1px solid rgba(201,169,110,.18);
+      background: rgba(201,169,110,.07); border: 1px solid rgba(201,169,110,.18);
       color: var(--gold); text-decoration: none;
       font-size: .75rem; letter-spacing: .18em; text-transform: uppercase;
-      padding: .85rem 1.5rem; text-align: center;
-      transition: background .3s;
+      padding: .85rem 1.5rem; text-align: center; transition: background .3s;
     }
     .map-btn:hover { background: rgba(201,169,110,.15); }
 
     /* ─── CTA BAND ─── */
     .cta-band {
-      position: relative; overflow: hidden;
+      position: relative; z-index: 1; overflow: hidden;
       text-align: center; padding: 9rem 2.5rem;
     }
     .cta-band::before {
-      content: '';
-      position: absolute; inset: 0;
-      background: radial-gradient(ellipse at 50% 40%, rgba(201,169,110,.09) 0%, transparent 65%);
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 40%, rgba(201,169,110,.1) 0%, transparent 65%);
       pointer-events: none;
     }
     .cta-band > * { position: relative; }
-    .cta-title {
-      font-family: var(--serif);
-      font-size: clamp(2.6rem, 5.5vw, 4.2rem);
-      font-weight: 600; color: var(--white);
-      margin-bottom: 1rem; line-height: 1.1;
-    }
+    .cta-title { font-family: var(--serif); font-size: clamp(2.6rem, 5.5vw, 4.2rem); font-weight: 600; color: var(--white); margin-bottom: 1rem; line-height: 1.1; }
     .cta-title em { font-style: italic; color: var(--gold); }
     .cta-sub { color: var(--gray); font-size: .95rem; font-weight: 300; margin-bottom: 2.8rem; }
     .cta-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
@@ -457,6 +521,7 @@
       letter-spacing: .2em; text-transform: uppercase;
       text-decoration: none; display: inline-flex; align-items: center; gap: .55rem;
       transition: background .3s, transform .25s;
+      position: relative; overflow: hidden;
     }
     .btn-g:hover { background: var(--gold-light); transform: translateY(-2px); }
     .btn-o {
@@ -470,18 +535,15 @@
 
     /* ─── FOOTER ─── */
     footer {
-      background: #060407;
+      position: relative; z-index: 1;
+      background: rgba(6,4,7,.97);
       border-top: 1px solid rgba(201,169,110,.1);
-      padding: 3.5rem 2.5rem;
-      text-align: center;
+      padding: 3.5rem 2.5rem; text-align: center;
     }
     .f-logo { font-family: var(--serif); font-size: 2rem; font-weight: 700; color: var(--gold); }
     .f-sub { font-size: .62rem; letter-spacing: .35em; text-transform: uppercase; color: rgba(245,240,232,.28); margin: .3rem 0 1.8rem; }
     .f-links { display: flex; justify-content: center; gap: 2rem; margin-bottom: 2rem; flex-wrap: wrap; }
-    .f-links a {
-      font-size: .7rem; letter-spacing: .14em; text-transform: uppercase;
-      color: rgba(245,240,232,.35); text-decoration: none; transition: color .2s;
-    }
+    .f-links a { font-size: .7rem; letter-spacing: .14em; text-transform: uppercase; color: rgba(245,240,232,.35); text-decoration: none; transition: color .2s; }
     .f-links a:hover { color: var(--gold); }
     .f-copy { font-size: .68rem; color: rgba(245,240,232,.18); }
 
@@ -502,10 +564,27 @@
       .g-item { height: 200px; }
       .cta-btns { flex-direction: column; align-items: center; }
       .stats { gap: 1rem; }
+      #cursor, #cursor-dot { display: none; }
+      body { cursor: auto; }
     }
   </style>
 </head>
 <body>
+
+<!-- CURSOR -->
+<div id="cursor"></div>
+<div id="cursor-dot"></div>
+
+<!-- CANVAS BLOBS -->
+<canvas id="blobCanvas"></canvas>
+
+<!-- LIGHTBOX -->
+<div id="lightbox">
+  <button id="lb-close" aria-label="Cerrar">✕</button>
+  <button class="lb-arrow" id="lb-prev" aria-label="Anterior">‹</button>
+  <img id="lb-img" src="" alt="" />
+  <button class="lb-arrow" id="lb-next" aria-label="Siguiente">›</button>
+</div>
 
 <!-- HEADER -->
 <header id="header">
@@ -544,7 +623,7 @@
       Alexys Style
       <em>Luxury Hair Salon</em>
     </h1>
-    <p class="hero-sub" id="hSub">Donde cada cabello cuenta su historia</p>
+    <p class="hero-sub" id="hSub"></p>
     <a href="https://wa.me/34642448364" target="_blank" rel="noopener" class="hero-btn" id="hBtn">
       Reservar cita por WhatsApp
     </a>
@@ -555,12 +634,18 @@
   </div>
 </div>
 
+<!-- WAVE -->
+<span class="wave-sep" aria-hidden="true">
+  <svg viewBox="0 0 1440 60" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" height="60" width="100%">
+    <path d="M0,30 C360,60 1080,0 1440,30 L1440,60 L0,60 Z" fill="rgba(13,11,20,0.85)"/>
+    <path d="M0,40 C400,10 1040,55 1440,20 L1440,60 L0,60 Z" fill="rgba(13,11,20,0.4)" opacity="0.5"/>
+  </svg>
+</span>
+
 <!-- ABOUT -->
 <section class="sec" id="sobre">
   <div class="about-grid">
-
     <div class="about-img-wrap fu">
-      <!-- PLACEHOLDER: sustituye por foto de Cristina o del salón -->
       <div class="about-img">
         <div class="ph">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
@@ -571,166 +656,144 @@
           Foto de Cristina<br/>o del salón
         </div>
       </div>
-      <div class="badge">
-        <big>★</big>
-        <small>Top<br/>Coslada</small>
-      </div>
+      <div class="badge"><big>★</big><small>Top<br/>Coslada</small></div>
     </div>
-
     <div>
-      <span class="tag fu">Sobre nosotras</span>
+      <span class="tag fu" data-text="Sobre nosotras">Sobre nosotras</span>
       <h2 class="title fu">Cristina, tu artista<br/><em>del cabello</em></h2>
       <div class="g-line fu"></div>
       <p class="fu">En <strong>Alexys Style</strong> creemos que el cabello es la joya más visible de tu personalidad. Cada visita es una experiencia única donde técnica, cuidado y talento se unen para darte el resultado que siempre deseaste.</p>
       <p class="fu">Cristina es reconocida en Coslada por su <strong>maestría en rubios</strong> — balayages, mechas y tintes que parecen obra de arte. Cada trabajo es artesanal, personalizado y pensado para realzar tu belleza natural.</p>
       <p class="fu">Desde el momento en que entras, te sentirás <strong>en casa</strong>. Aquí no solo transformamos tu look, cuidamos tu cabello y tu bienestar.</p>
       <div class="stats fu">
-        <div class="stat">
-          <div class="stat-n">5★</div>
-          <div class="stat-l">Valoración media</div>
-        </div>
-        <div class="stat">
-          <div class="stat-n">+5</div>
-          <div class="stat-l">Reseñas reales</div>
-        </div>
-        <div class="stat">
-          <div class="stat-n">100%</div>
-          <div class="stat-l">Dedicación</div>
-        </div>
+        <div class="stat"><div class="stat-n" data-target="5">0</div><div class="stat-l">Estrellas Google</div></div>
+        <div class="stat"><div class="stat-n" data-target="5">0</div><div class="stat-l">Reseñas reales</div></div>
+        <div class="stat"><div class="stat-n">∞</div><div class="stat-l">Dedicación</div></div>
       </div>
     </div>
-
   </div>
 </section>
+
+<!-- WAVE -->
+<span class="wave-sep" aria-hidden="true">
+  <svg viewBox="0 0 1440 60" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" height="60" width="100%">
+    <path d="M0,20 C480,55 960,5 1440,35 L1440,0 L0,0 Z" fill="rgba(13,11,20,0.85)"/>
+  </svg>
+</span>
 
 <!-- SERVICES -->
 <div class="sec-full" id="servicios">
   <div class="sec-inner">
-    <span class="tag fu">Lo que hacemos</span>
+    <span class="tag fu" data-text="Lo que hacemos">Lo que hacemos</span>
     <h2 class="title fu">Servicios <em>&amp; Precios</em></h2>
     <div class="g-line fu"></div>
     <div class="svc-grid fu">
-
       <div class="svc-cat">
         <div class="svc-cat-h">✂️ Cortes</div>
-        <div class="svc-row"><span class="svc-n">Corte + Lavado + Secado (mujer)</span><span class="svc-p">25€</span></div>
-        <div class="svc-row"><span class="svc-n">Corte + Lavado + Secado (hombre)</span><span class="svc-p">15€</span></div>
-        <div class="svc-row"><span class="svc-n">Lavado + Secado</span><span class="svc-p">15€</span></div>
-        <div class="svc-row"><span class="svc-n">Retoque de flequillo</span><span class="svc-p">8€</span></div>
+        <div class="svc-row"><span class="svc-n">Corte + Lavado + Secado (mujer)</span><span class="svc-p" data-price="25">25€</span></div>
+        <div class="svc-row"><span class="svc-n">Corte + Lavado + Secado (hombre)</span><span class="svc-p" data-price="15">15€</span></div>
+        <div class="svc-row"><span class="svc-n">Lavado + Secado</span><span class="svc-p" data-price="15">15€</span></div>
+        <div class="svc-row"><span class="svc-n">Retoque de flequillo</span><span class="svc-p" data-price="8">8€</span></div>
       </div>
-
       <div class="svc-cat">
         <div class="svc-cat-h">🎨 Color &amp; Tintes</div>
-        <div class="svc-row"><span class="svc-n">Tinte raíces</span><span class="svc-p">40€</span></div>
-        <div class="svc-row"><span class="svc-n">Tinte completo</span><span class="svc-p">55€</span></div>
-        <div class="svc-row"><span class="svc-n">Baño de color / Matizador</span><span class="svc-p">30€</span></div>
+        <div class="svc-row"><span class="svc-n">Tinte raíces</span><span class="svc-p" data-price="40">40€</span></div>
+        <div class="svc-row"><span class="svc-n">Tinte completo</span><span class="svc-p" data-price="55">55€</span></div>
+        <div class="svc-row"><span class="svc-n">Baño de color / Matizador</span><span class="svc-p" data-price="30">30€</span></div>
         <div class="svc-row"><span class="svc-n">Mechas clásicas</span><span class="svc-p">desde 65€</span></div>
         <div class="svc-row"><span class="svc-n">Balayage / Ombré</span><span class="svc-p">desde 95€</span></div>
       </div>
-
       <div class="svc-cat">
         <div class="svc-cat-h">💆 Tratamientos</div>
-        <div class="svc-row"><span class="svc-n">Hidratación profunda</span><span class="svc-p">35€</span></div>
-        <div class="svc-row"><span class="svc-n">Botox capilar</span><span class="svc-p">50€</span></div>
+        <div class="svc-row"><span class="svc-n">Hidratación profunda</span><span class="svc-p" data-price="35">35€</span></div>
+        <div class="svc-row"><span class="svc-n">Botox capilar</span><span class="svc-p" data-price="50">50€</span></div>
         <div class="svc-row"><span class="svc-n">Keratina brasileña</span><span class="svc-p">desde 70€</span></div>
-        <div class="svc-row"><span class="svc-n">Mascarilla nutritiva</span><span class="svc-p">20€</span></div>
+        <div class="svc-row"><span class="svc-n">Mascarilla nutritiva</span><span class="svc-p" data-price="20">20€</span></div>
       </div>
-
       <div class="svc-cat">
         <div class="svc-cat-h">✨ Extensiones &amp; Más</div>
-        <div class="svc-row">
-          <span class="svc-n">Extensiones</span>
-          <span class="svc-p">desde 180€<small>Según cantidad y largo</small></span>
-        </div>
+        <div class="svc-row"><span class="svc-n">Extensiones</span><span class="svc-p">desde 180€<small>Según cantidad y largo</small></span></div>
         <div class="svc-row"><span class="svc-n">Peinado / Recogido</span><span class="svc-p">desde 30€</span></div>
         <div class="svc-row"><span class="svc-n">Ondas / Permanente</span><span class="svc-p">desde 55€</span></div>
         <div class="svc-row"><span class="svc-n">Consulta de color</span><span class="svc-p">Gratis</span></div>
       </div>
-
     </div>
-    <p class="svc-note fu">* Precios orientativos. El precio final puede variar según longitud y densidad del cabello. Consulta sin compromiso.</p>
+    <p class="svc-note fu">* Precios orientativos. El precio final puede variar según longitud y densidad. Consulta sin compromiso.</p>
   </div>
 </div>
 
 <!-- GALLERY -->
 <section class="sec" id="galeria">
-  <span class="tag fu">Nuestro trabajo</span>
+  <span class="tag fu" data-text="Nuestro trabajo">Nuestro trabajo</span>
   <h2 class="title fu">Galería</h2>
   <div class="g-line fu"></div>
   <div class="gallery-grid fu">
-    <div class="g-item"><img src="https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=800&q=80" alt="Coloración de cabello rubio" loading="lazy" /></div>
-    <div class="g-item"><img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=700&q=80" alt="Peinado en salón" loading="lazy" /></div>
-    <div class="g-item"><img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=700&q=80" alt="Interior del salón" loading="lazy" /></div>
-    <div class="g-item"><img src="https://images.unsplash.com/photo-1492106087820-71f1a00d2b11?w=700&q=80" alt="Corte de cabello" loading="lazy" /></div>
-    <div class="g-item"><img src="https://images.unsplash.com/photo-1519500099198-fd81846b8d4e?w=700&q=80" alt="Cabello rubio resultado" loading="lazy" /></div>
+    <div class="g-item" data-src="https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=1200&q=90">
+      <img src="https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=800&q=80" alt="Coloración de cabello rubio" loading="lazy" />
+      <div class="g-overlay"><div class="g-overlay-icon">⊕</div></div>
+    </div>
+    <div class="g-item" data-src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1200&q=90">
+      <img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=700&q=80" alt="Peinado en salón" loading="lazy" />
+      <div class="g-overlay"><div class="g-overlay-icon">⊕</div></div>
+    </div>
+    <div class="g-item" data-src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=1200&q=90">
+      <img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=700&q=80" alt="Interior del salón" loading="lazy" />
+      <div class="g-overlay"><div class="g-overlay-icon">⊕</div></div>
+    </div>
+    <div class="g-item" data-src="https://images.unsplash.com/photo-1492106087820-71f1a00d2b11?w=1200&q=90">
+      <img src="https://images.unsplash.com/photo-1492106087820-71f1a00d2b11?w=700&q=80" alt="Corte de cabello" loading="lazy" />
+      <div class="g-overlay"><div class="g-overlay-icon">⊕</div></div>
+    </div>
+    <div class="g-item" data-src="https://images.unsplash.com/photo-1519500099198-fd81846b8d4e?w=1200&q=90">
+      <img src="https://images.unsplash.com/photo-1519500099198-fd81846b8d4e?w=700&q=80" alt="Cabello rubio resultado" loading="lazy" />
+      <div class="g-overlay"><div class="g-overlay-icon">⊕</div></div>
+    </div>
   </div>
-  <p class="gallery-hint fu">📸 Cuando tengas tus fotos reales, dímelo y las cambio</p>
+  <p class="gallery-hint fu">📸 Cuando tengas fotos reales, dímelo y las cambio</p>
 </section>
 
 <!-- TESTIMONIALS -->
 <div class="sec-full" id="resenas">
   <div class="sec-inner">
-    <span class="tag fu">Lo que dicen</span>
+    <span class="tag fu" data-text="Lo que dicen">Lo que dicen</span>
     <h2 class="title fu">Reseñas <em>reales</em></h2>
     <div class="g-line fu"></div>
     <div class="testi-grid">
-
       <div class="testi-card fu">
         <div class="stars">★★★★★</div>
         <p class="testi-text">"Cristina es la mejor, sin duda! Si tu pelo necesita rescate, Cristina es la solución 🥰"</p>
-        <div class="testi-author">
-          <div class="avatar">C</div>
-          <div><div class="author-name">Cosmina Bozi</div><div class="author-src">Google Reviews</div></div>
-        </div>
+        <div class="testi-author"><div class="avatar">C</div><div><div class="author-name">Cosmina Bozi</div><div class="author-src">Google Reviews</div></div></div>
       </div>
-
       <div class="testi-card fu">
         <div class="stars">★★★★★</div>
-        <p class="testi-text">"He probado muchas peluquerías, pero ninguna como Cristina. Ella es una artista con los rubios, te deja el pelo espectacular y además te hace sentir como en casa. Simplemente es la mejor ❤️"</p>
-        <div class="testi-author">
-          <div class="avatar">Y</div>
-          <div><div class="author-name">Yordanka Hristova</div><div class="author-src">Google Reviews</div></div>
-        </div>
+        <p class="testi-text">"He probado muchas peluquerías, pero ninguna como Cristina. Ella es una artista con los rubios, te deja el pelo espectacular y además te hace sentir como en casa ❤️"</p>
+        <div class="testi-author"><div class="avatar">Y</div><div><div class="author-name">Yordanka Hristova</div><div class="author-src">Google Reviews</div></div></div>
       </div>
-
       <div class="testi-card fu">
         <div class="stars">★★★★★</div>
         <p class="testi-text">"Muy buena atención y resultado. La peluquera fue muy profesional y trató a mi esposa con mucha amabilidad. Recomiendo."</p>
-        <div class="testi-author">
-          <div class="avatar">I</div>
-          <div><div class="author-name">Ionut Stefan Anghel</div><div class="author-src">Google Reviews</div></div>
-        </div>
+        <div class="testi-author"><div class="avatar">I</div><div><div class="author-name">Ionut Stefan Anghel</div><div class="author-src">Google Reviews</div></div></div>
       </div>
-
       <div class="testi-card fu">
         <div class="stars">★★★★★</div>
-        <p class="testi-text">"Son unas profesionales de los pies a la cabeza. Cristina tiene manos de oro. Enamorada de mi cambio de look y del rubio tan bonito que me dejaron."</p>
-        <div class="testi-author">
-          <div class="avatar">A</div>
-          <div><div class="author-name">Ana M</div><div class="author-src">Google Reviews</div></div>
-        </div>
+        <p class="testi-text">"Son unas profesionales de los pies a la cabeza. Cristina tiene manos de oro. Enamorada de mi cambio de look y del rubio tan bonito."</p>
+        <div class="testi-author"><div class="avatar">A</div><div><div class="author-name">Ana M</div><div class="author-src">Google Reviews</div></div></div>
       </div>
-
       <div class="testi-card fu">
         <div class="stars">★★★★★</div>
         <p class="testi-text">"Una peluquería de 100. Cristina, una de las mejores peluqueras que encontré. Me arregló el pelo de un trabajo muy mal hecho. Volvería 1000 veces más."</p>
-        <div class="testi-author">
-          <div class="avatar">A</div>
-          <div><div class="author-name">Andreea Ganea</div><div class="author-src">Google Reviews</div></div>
-        </div>
+        <div class="testi-author"><div class="avatar">A</div><div><div class="author-name">Andreea Ganea</div><div class="author-src">Google Reviews</div></div></div>
       </div>
-
     </div>
   </div>
 </div>
 
 <!-- HOURS & CONTACT -->
 <section class="sec" id="contacto">
-  <span class="tag fu">Visítanos</span>
+  <span class="tag fu" data-text="Visítanos">Visítanos</span>
   <h2 class="title fu">Horario <em>&amp; Contacto</em></h2>
   <div class="g-line fu"></div>
   <div class="info-grid fu">
-
     <div class="info-card">
       <div class="info-card-h">🕐 Horario semanal</div>
       <div class="h-row"><span class="h-day">Lunes</span><span class="h-time">10:00 – 14:00</span></div>
@@ -741,32 +804,16 @@
       <div class="h-row"><span class="h-day">Sábado</span><span class="h-time off">Cerrado</span></div>
       <div class="h-row"><span class="h-day">Domingo</span><span class="h-time off">Cerrado</span></div>
     </div>
-
     <div class="info-card">
       <div class="info-card-h">📍 Cómo encontrarnos</div>
       <div class="contact-list">
-        <div class="c-item">
-          <span class="c-icon">📍</span>
-          <p>Calle del Dr. Ochoa, 6, local izquierda<br/>28821 Coslada, Madrid</p>
-        </div>
-        <div class="c-item">
-          <span class="c-icon">📞</span>
-          <p><a href="tel:+34642448364">642 448 364</a></p>
-        </div>
-        <div class="c-item">
-          <span class="c-icon">💬</span>
-          <p><a href="https://wa.me/34642448364" target="_blank" rel="noopener">WhatsApp — Reservar cita</a></p>
-        </div>
-        <div class="c-item">
-          <span class="c-icon">📸</span>
-          <p><a href="https://www.instagram.com/allexysstyle" target="_blank" rel="noopener">@allexysstyle</a></p>
-        </div>
+        <div class="c-item"><span class="c-icon">📍</span><p>Calle del Dr. Ochoa, 6, local izquierda<br/>28821 Coslada, Madrid</p></div>
+        <div class="c-item"><span class="c-icon">📞</span><p><a href="tel:+34642448364">642 448 364</a></p></div>
+        <div class="c-item"><span class="c-icon">💬</span><p><a href="https://wa.me/34642448364" target="_blank" rel="noopener">WhatsApp — Reservar cita</a></p></div>
+        <div class="c-item"><span class="c-icon">📸</span><p><a href="https://www.instagram.com/allexysstyle" target="_blank" rel="noopener">@allexysstyle</a></p></div>
       </div>
-      <a href="https://www.google.com/maps/search/?api=1&query=Calle+del+Dr.+Ochoa+6+28821+Coslada+Madrid" target="_blank" rel="noopener" class="map-btn">
-        📍 Ver en Google Maps →
-      </a>
+      <a href="https://www.google.com/maps/search/?api=1&query=Calle+del+Dr.+Ochoa+6+28821+Coslada+Madrid" target="_blank" rel="noopener" class="map-btn">📍 Ver en Google Maps →</a>
     </div>
-
   </div>
 </section>
 
@@ -797,50 +844,209 @@
 </footer>
 
 <script>
-  // Header scroll effect
-  const hdr = document.getElementById('header');
-  window.addEventListener('scroll', () => {
-    hdr.classList.toggle('scrolled', window.scrollY > 60);
-  }, { passive: true });
+gsap.registerPlugin(TextPlugin, ScrollTrigger);
 
-  // Hero parallax
-  const heroBg = document.getElementById('heroBg');
-  window.addEventListener('scroll', () => {
-    heroBg.style.transform = `scale(1.06) translateY(${window.pageYOffset * 0.28}px)`;
-  }, { passive: true });
+/* ── LENIS smooth scroll ── */
+const lenis = new Lenis({ lerp: 0.08, smoothWheel: true });
+lenis.on('scroll', ScrollTrigger.update);
+gsap.ticker.add(t => lenis.raf(t * 1000));
+gsap.ticker.lagSmoothing(0);
 
-  // Mobile menu
-  function openMenu() {
-    document.getElementById('mobileMenu').classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
-  function closeMenu() {
-    document.getElementById('mobileMenu').classList.remove('open');
-    document.body.style.overflow = '';
-  }
+/* ── CURSOR ── */
+const cur = document.getElementById('cursor');
+const dot = document.getElementById('cursor-dot');
+let mx = -100, my = -100, cx = -100, cy = -100;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+(function loop() {
+  cx += (mx - cx) * 0.12;
+  cy += (my - cy) * 0.12;
+  cur.style.left = cx + 'px'; cur.style.top = cy + 'px';
+  dot.style.left = mx + 'px'; dot.style.top = my + 'px';
+  requestAnimationFrame(loop);
+})();
 
-  // Hero entrance animation
-  window.addEventListener('DOMContentLoaded', () => {
-    gsap.set(['#hTag', '#hTitle', '#hSub', '#hBtn'], { y: 22 });
-    gsap.timeline({ delay: 0.25 })
-      .to('#hTag',    { opacity: 1, y: 0, duration: 0.75, ease: 'power2.out' })
-      .to('#hTitle',  { opacity: 1, y: 0, duration: 0.85, ease: 'power2.out' }, '-=0.45')
-      .to('#hSub',    { opacity: 1, y: 0, duration: 0.75, ease: 'power2.out' }, '-=0.5')
-      .to('#hBtn',    { opacity: 1, y: 0, duration: 0.65, ease: 'power2.out' }, '-=0.45')
-      .to('#hScroll', { opacity: 1,        duration: 0.6,  ease: 'power2.out' }, '-=0.3');
+/* ── CANVAS BLOBS ── */
+const canvas = document.getElementById('blobCanvas');
+const ctx = canvas.getContext('2d');
+
+function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+resize();
+window.addEventListener('resize', resize);
+
+const blobs = [
+  { x: 0.15, y: 0.2,  r: 420, vx: 0.00008, vy: 0.00006, color: [201,169,110] },
+  { x: 0.75, y: 0.15, r: 500, vx:-0.00007, vy: 0.00009, color: [80, 30,120] },
+  { x: 0.5,  y: 0.7,  r: 460, vx: 0.00009, vy:-0.00007, color: [140, 60, 80] },
+  { x: 0.85, y: 0.65, r: 380, vx:-0.00006, vy:-0.00008, color: [160,100, 40] },
+  { x: 0.25, y: 0.8,  r: 350, vx: 0.00007, vy: 0.00005, color: [60,  20, 90] },
+];
+
+let t = 0;
+function drawBlobs() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const W = canvas.width, H = canvas.height;
+  const scrollY = window.pageYOffset;
+  const maxScroll = document.body.scrollHeight - window.innerHeight;
+  const progress = maxScroll > 0 ? scrollY / maxScroll : 0;
+  const opacity = 0.35 - progress * 0.2; // más sutil al bajar
+
+  blobs.forEach(b => {
+    const x = (Math.sin(t * b.vx * 1000 + b.x * 10) * 0.18 + b.x) * W;
+    const y = (Math.cos(t * b.vy * 1000 + b.y * 10) * 0.15 + b.y) * H;
+    const r = b.r * (W / 1440);
+    const grad = ctx.createRadialGradient(x, y, 0, x, y, r);
+    const [R, G, B] = b.color;
+    grad.addColorStop(0, `rgba(${R},${G},${B},${opacity})`);
+    grad.addColorStop(1, `rgba(${R},${G},${B},0)`);
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fillStyle = grad;
+    ctx.fill();
   });
+  t += 16;
+  requestAnimationFrame(drawBlobs);
+}
+drawBlobs();
 
-  // Scroll reveal for all .fu elements
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach((entry, i) => {
-      if (entry.isIntersecting) {
-        setTimeout(() => entry.target.classList.add('in'), i * 75);
-        io.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+/* ── HEADER ── */
+const hdr = document.getElementById('header');
+window.addEventListener('scroll', () => {
+  hdr.classList.toggle('scrolled', window.scrollY > 60);
+}, { passive: true });
 
-  document.querySelectorAll('.fu').forEach(el => io.observe(el));
+/* ── HERO PARALLAX ── */
+const heroBg = document.getElementById('heroBg');
+window.addEventListener('scroll', () => {
+  heroBg.style.transform = `scale(1.06) translateY(${window.pageYOffset * 0.25}px)`;
+}, { passive: true });
+
+/* ── MOBILE MENU ── */
+function openMenu() { document.getElementById('mobileMenu').classList.add('open'); document.body.style.overflow = 'hidden'; }
+function closeMenu() { document.getElementById('mobileMenu').classList.remove('open'); document.body.style.overflow = ''; }
+
+/* ── HERO ENTRANCE ── */
+window.addEventListener('DOMContentLoaded', () => {
+  gsap.set(['#hTag','#hTitle','#hSub','#hBtn'], { y: 24 });
+
+  gsap.timeline({ delay: 0.3 })
+    .to('#hTag',   { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' })
+    .to('#hTitle', { opacity: 1, y: 0, duration: 0.9, ease: 'power2.out' }, '-=0.45')
+    .to('#hSub',   { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' }, '-=0.5')
+    .to('#hSub',   {
+        duration: 1.8,
+        text: { value: 'Donde cada cabello cuenta su historia', delimiter: '' },
+        ease: 'none'
+      }, '-=0.3')
+    .to('#hBtn',   { opacity: 1, y: 0, duration: 0.65, ease: 'power2.out' }, '-=0.8')
+    .to('#hScroll',{ opacity: 1, duration: 0.6, ease: 'power2.out' }, '-=0.4');
+});
+
+/* ── RIPPLE en botón hero ── */
+document.getElementById('hBtn').addEventListener('click', function(e) {
+  const r = document.createElement('span');
+  r.className = 'ripple';
+  const rect = this.getBoundingClientRect();
+  const size = Math.max(rect.width, rect.height);
+  r.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX-rect.left-size/2}px;top:${e.clientY-rect.top-size/2}px`;
+  this.appendChild(r);
+  setTimeout(() => r.remove(), 700);
+});
+
+/* ── SCROLL REVEAL ── */
+const io = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) {
+      setTimeout(() => entry.target.classList.add('in'), i * 80);
+      io.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.07, rootMargin: '0px 0px -30px 0px' });
+document.querySelectorAll('.fu').forEach(el => io.observe(el));
+
+/* ── TYPEWRITER en .tag al scroll ── */
+const tagEls = document.querySelectorAll('.tag[data-text]');
+const tagObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const el = entry.target;
+      const text = el.dataset.text;
+      el.textContent = '';
+      gsap.to(el, { duration: text.length * 0.05, text: { value: text, delimiter: '' }, ease: 'none' });
+      tagObserver.unobserve(el);
+    }
+  });
+}, { threshold: 0.5 });
+tagEls.forEach(el => tagObserver.observe(el));
+
+/* ── CONTADOR de precios ── */
+const priceEls = document.querySelectorAll('.svc-p[data-price]');
+const priceObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const el = entry.target;
+      const target = parseInt(el.dataset.price);
+      let current = 0;
+      const step = Math.ceil(target / 30);
+      const timer = setInterval(() => {
+        current = Math.min(current + step, target);
+        el.textContent = current + '€';
+        if (current >= target) clearInterval(timer);
+      }, 30);
+      priceObserver.unobserve(el);
+    }
+  });
+}, { threshold: 0.3 });
+priceEls.forEach(el => priceObserver.observe(el));
+
+/* ── COUNTER de stats ── */
+const statEls = document.querySelectorAll('.stat-n[data-target]');
+const statObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const el = entry.target;
+      const target = parseInt(el.dataset.target);
+      gsap.fromTo(el, { textContent: 0 }, {
+        textContent: target, duration: 1.5, ease: 'power2.out',
+        snap: { textContent: 1 },
+        onUpdate() { el.textContent = (target === 5 && el.closest('.stat-l') === null) ? Math.round(+el.textContent) + '★' : '+' + Math.round(+el.textContent); }
+      });
+      statObserver.unobserve(el);
+    }
+  });
+}, { threshold: 0.5 });
+statEls.forEach(el => statObserver.observe(el));
+
+/* ── LIGHTBOX ── */
+const lb = document.getElementById('lightbox');
+const lbImg = document.getElementById('lb-img');
+const gItems = [...document.querySelectorAll('.g-item[data-src]')];
+let lbIdx = 0;
+
+function openLb(idx) {
+  lbIdx = idx;
+  lbImg.src = gItems[lbIdx].dataset.src;
+  lb.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLb() { lb.classList.remove('open'); document.body.style.overflow = ''; }
+function lbNav(dir) {
+  lbIdx = (lbIdx + dir + gItems.length) % gItems.length;
+  lbImg.style.opacity = 0;
+  setTimeout(() => { lbImg.src = gItems[lbIdx].dataset.src; lbImg.style.opacity = 1; }, 150);
+}
+
+gItems.forEach((el, i) => el.addEventListener('click', () => openLb(i)));
+document.getElementById('lb-close').addEventListener('click', closeLb);
+document.getElementById('lb-prev').addEventListener('click', () => lbNav(-1));
+document.getElementById('lb-next').addEventListener('click', () => lbNav(1));
+lb.addEventListener('click', e => { if (e.target === lb) closeLb(); });
+document.addEventListener('keydown', e => {
+  if (!lb.classList.contains('open')) return;
+  if (e.key === 'Escape') closeLb();
+  if (e.key === 'ArrowLeft') lbNav(-1);
+  if (e.key === 'ArrowRight') lbNav(1);
+});
+lbImg.style.transition = 'opacity .15s';
 </script>
 </body>
 </html>
