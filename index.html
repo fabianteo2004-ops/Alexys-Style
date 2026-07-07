@@ -287,21 +287,29 @@
     .img-badge big { font-size: 1.9rem; line-height: 1; }
     .img-badge small { font-size: .55rem; letter-spacing: .05em; }
 
-    .about-text p { color: var(--gray); font-size: .94rem; margin-bottom: 1.2rem; line-height: 1.8; }
-    .about-text strong { color: var(--gold2); font-weight: 500; }
     .about-p {
       font-family: var(--serif);
-      font-size: 1.12rem;
+      font-size: 1.08rem;
       font-style: italic;
-      font-weight: 400;
-      color: rgba(244,239,230,.75);
-      line-height: 1.9;
-      letter-spacing: .02em;
-      padding-left: 1.4rem;
-      border-left: 2px solid rgba(201,169,110,.35);
-      margin-bottom: 1.5rem;
+      font-weight: 300;
+      color: rgba(244,239,230,.8);
+      line-height: 2.15;
+      letter-spacing: .045em;
+      margin-bottom: 2rem;
     }
-    .about-p strong { color: var(--gold); font-style: normal; font-weight: 600; }
+    .about-p:first-of-type {
+      font-size: 1.28rem;
+      font-style: normal;
+      font-weight: 400;
+      color: rgba(244,239,230,.96);
+      letter-spacing: .025em;
+      line-height: 1.85;
+      padding-bottom: 2rem;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid rgba(201,169,110,.2);
+    }
+    .about-p:last-of-type { margin-bottom: 0; }
+    .about-p strong { color: var(--gold2); font-style: normal; font-weight: 600; letter-spacing: .01em; }
 
     .stats-row { display: flex; gap: 2.5rem; margin-top: 2.8rem; padding-top: 2rem; border-top: 1px solid rgba(201,169,110,.12); }
     .stat-item { flex: 1; text-align: center; }
@@ -566,16 +574,18 @@
       .about-text .eyebrow { justify-content: center; }
       .about-text .divider { margin: 0 auto 2.5rem; }
       .about-text .heading { font-size: clamp(2rem, 7vw, 2.6rem); line-height: 1.15; }
-      .about-text p {
-        font-size: 1rem; line-height: 1.9;
-        color: rgba(244,239,230,.7);
-        font-family: var(--serif); font-weight: 400;
-        font-style: italic; letter-spacing: .02em;
-        border-left: 2px solid rgba(201,169,110,.3);
-        padding-left: 1.2rem; text-align: left;
-        margin-bottom: 1.4rem;
+      .about-p {
+        font-size: .98rem;
+        line-height: 2.05;
+        letter-spacing: .035em;
+        margin-bottom: 1.6rem;
+        text-align: left;
       }
-      .about-text strong { color: var(--gold); font-style: normal; font-weight: 600; }
+      .about-p:first-of-type {
+        font-size: 1.12rem;
+        padding-bottom: 1.6rem;
+        margin-bottom: 1.6rem;
+      }
       .stats-row { gap: .8rem; text-align: center; justify-content: center; }
       .stat-val { font-size: 2rem; }
       .stat-lbl { font-size: .58rem; }
